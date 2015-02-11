@@ -7,6 +7,7 @@ class Database {
     private $username;
     private $password;
     private $database;
+    public $error;
 
     public function __construct($host, $username, $password, $database) {
         $this->host = $host;
@@ -16,14 +17,14 @@ class Database {
 
         $this->connection = new mysqli($host, $username, $password);
 
-        if ($connection->connect_error) {
-            die("<p>Error: " . $connection->connect_error . "</p>");
+        if ($this->connection->connect_error) {
+            die("<p>Error: " . $this->connection->connect_error . "</p>");
         }
 
-        $exists = $connection->select_db($database);
+        $exists = $this->connection->select_db($database);
 
         if (!$exists) {
-            $query = $connection->query("CREATE DATABASE $database");
+            $query = $this->connection->query("CREATE DATABASE $database");
 
             if ($query) {
                 echo "<p>Successfully created database: " . $database . "</p>";
@@ -51,6 +52,10 @@ class Database {
         $this->openConnection();
 
         $query = $this->connection->query($string);
+        
+        if(!$query) {
+            $this->error = $this->connection->error;
+        }
 
         $this->closeConnection();
 
